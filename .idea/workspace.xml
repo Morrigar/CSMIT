@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="30e058b1-a568-4aab-b85a-edf926b33e64" name="Default Changelist" comment="Upload" />
     <option name="SHOW_DIALOG" value="false" />
@@ -57,5 +66,11 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Upload" />
     <option name="LAST_COMMIT_MESSAGE" value="Upload" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="1129" y="577" key="Vcs.Push.Dialog.v2" timestamp="1592496912953">
+      <screen x="0" y="0" width="3072" height="1688" />
+    </state>
+    <state x="1129" y="577" key="Vcs.Push.Dialog.v2/0.0.3072.1688@0.0.3072.1688" timestamp="1592496912953" />
   </component>
 </project>
