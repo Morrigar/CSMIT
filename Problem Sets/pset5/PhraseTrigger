@@ -1,0 +1,267 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jun  1 17:00:27 2020
+
+@author: ksripinyo
+"""
+import feedparser
+from project_util import translate_html
+
+# import feedparser
+import string
+import time
+# import threading
+# from project_util import translate_html
+# from mtTkinter import *
+from datetime import datetime
+import pytz
+
+
+#-----------------------------------------------------------------------
+
+#======================
+# Code for retrieving and parsing
+# Google and Yahoo News feeds
+# Do not change this code
+#======================
+
+def process(url):
+    """
+    Fetches news items from the rss url and parses them.
+    Returns a list of NewsStory-s.
+    """
+    feed = feedparser.parse(url)
+    entries = feed.entries
+    ret = []
+    for entry in entries:
+        guid = entry.guid
+        title = translate_html(entry.title)
+        link = entry.link
+        description = translate_html(entry.description)
+        pubdate = translate_html(entry.published)
+
+        try:
+            pubdate = datetime.strptime(pubdate, "%a, %d %b %Y %H:%M:%S %Z")
+            pubdate.replace(tzinfo=pytz.timezone("GMT"))
+          #  pubdate = pubdate.astimezone(pytz.timezone('EST'))
+          #  pubdate.replace(tzinfo=None)
+        except ValueError:
+            pubdate = datetime.strptime(pubdate, "%a, %d %b %Y %H:%M:%S %z")
+
+        newsStory = NewsStory(guid, title, description, link, pubdate)
+        ret.append(newsStory)
+    return ret
+
+#======================
+# Data structure design
+#======================
+
+# Problem 1
+class NewsStory (object):
+    def __init__(self, guid, title, description, link, pubdate):
+        self.guid = guid
+        self.title = title
+        self.description = description
+        self.link = link
+        self.pubdate = pubdate    
+    
+    def get_guid(self):
+        return self.guid
+    
+    def get_title(self):
+        return self.title
+    
+    def get_description(self):
+        return self.description
+    
+    def get_link(self):
+        return self.link
+    
+    def get_pubdate(self):
+        return self.pubdate
+    
+    
+# TODO: NewsStory
+
+
+#======================
+# Triggers
+#======================
+
+class Trigger(object):
+    def evaluate(self, story):
+        """
+        Returns True if an alert should be generated
+        for the given news item, or False otherwise.
+        """
+        # DO NOT CHANGE THIS!
+        raise NotImplementedError
+
+# PHRASE TRIGGERS
+
+# Problem 2
+# TODO: PhraseTrigger
+
+class PhraseTrigger(Trigger):
+    def __init__(self, phrase):
+        self.phrase   = phrase      #the phrase to look for (i.e., the trigger phrase)
+
+    def __str__(self)     :   
+        return 'This trigger will return true if the phrase: '+str(self.phrase)+' is in the test text.'
+        
+    def get_phrase (self):
+        return self.phrase
+    
+    def is_phrase_in(self, testtext):
+        nonletters = string.punctuation
+        cleanphraseword = []
+        lowerphrase = self.phrase.lower()
+        
+        for word in lowerphrase.split():
+            cleanphraseword.append(word.strip(nonletters))
+        #print (cleanphraseword)
+
+        textremove = testtext.lower()
+        testtext = ''
+        for char in textremove:
+            if char in nonletters:
+                testtext  += ' '
+            else:
+                testtext += char
+        justwords = []
+        for word in testtext.split():           #turn test text into a list of words
+            wordclean = word.strip(nonletters)  #this allows it to remove strings of garbage punctuation
+            if len (wordclean) != 0:
+                justwords.append(wordclean)
+        
+        testdict ={}
+        for i in range (0, len (justwords)):
+            testdict[justwords[i]]=i
+        #print (testdict)
+        if len(cleanphraseword)==1 and testdict.get(cleanphraseword[0],0)!=0: return True
+        else: 
+            for i in range (0, len(cleanphraseword)-1):
+                if testdict.get(cleanphraseword[i], 'Notin')=='Notin':
+                    return False
+                elif testdict.get(cleanphraseword[i+1],0)-testdict.get(cleanphraseword[i],0) != 1:
+                    return False
+                else:
+                    return True
+
+class TimeTrigger (Trigger):
+    """ Expects a mark for time to evaluate the publication date.
+    """ 
+    def __init__(self, mark):
+        self.mark = mark
+        self.convmark = time.strptime(mark, "%d %b %Y %H:%M:%S")
+
+    def __str__(self):
+        return 'Trigger DTG for is: ' + self.mark
+        
+    def get_mark (self):
+        return self.mark
+     
+    def get_trigger_time(self):
+        return time.mktime(self.convmark)
+
+
+# Problem 6
+# TODO: BeforeTrigger and AfterTrigger
+
+class BeforeTrigger (TimeTrigger):
+    def __init__(self, mark):
+        TimeTrigger.__init__(self, mark)
+    
+    def evaluate(self, story):
+        testDTG = story.get_pubdate()
+        testDTG = time.strptime(str(testDTG),'%Y-%m-%d %H:%M:%S')
+        #print (str(testDTG))
+        if time.mktime(testDTG) < self.get_trigger_time():
+            return False
+        else:
+            return True
+
+
+def get_time(DateTime):
+    """
+    Expects a date in the format Day Month Year Hr:Mn:Se,
+    eg. 01 Jan 1912 23:59:59
+    """
+    returntime = time.mktime(time.strptime(DateTime, "%d %b %Y %I:%M:%S"))
+    
+    return returntime
+
+class TrueTrigger:
+    def evaluate(self, story): return True
+                
+class NotTrigger(Trigger):
+    def __init__(self,t):
+        self.trigger = t
+        
+    def evaluate (self, story):
+        return not self.trigger.evaluate(story)
+    
+def process(url):
+    """
+    Fetches news items from the rss url and parses them.
+    Returns a list of NewsStory-s.
+    """
+    feed = feedparser.parse(url)
+    entries = feed.entries
+    ret = []
+    for entry in entries:
+        guid = entry.guid
+        title = translate_html(entry.title)
+        link = entry.link
+        description = translate_html(entry.description)
+        pubdate = translate_html(entry.published)
+
+        try:
+            pubdate = datetime.strptime(pubdate, "%a, %d %b %Y %H:%M:%S %Z")
+            pubdate.replace(tzinfo=pytz.timezone("GMT"))
+          #  pubdate = pubdate.astimezone(pytz.timezone('EST'))
+          #  pubdate.replace(tzinfo=None)
+        except ValueError:
+            pubdate = datetime.strptime(pubdate, "%a, %d %b %Y %H:%M:%S %z")
+
+        newsStory = NewsStory(guid, title, description, link, pubdate)
+        ret.append(newsStory)
+    return ret
+
+class TitleTrigger(PhraseTrigger):
+    def __init__(self, phrase):
+        PhraseTrigger.__init__(self, phrase)
+    
+    def evaluate(self, story):
+        if self.is_phrase_in(story.get_title()):
+            return True
+        elif not self.is_phrase_in(story.get_title()):
+            return False
+
+class DescriptionTrigger(PhraseTrigger):
+    def __init__(self, phrase):
+        PhraseTrigger.__init__(self, phrase)
+    
+    def evaluate(self, story):
+        if self.is_phrase_in(story.get_description()):
+            return True
+        elif not self.is_phrase_in(story.get_description()):
+            return False    
+
+def filterstories(stories, triggers):
+    returnstories = []
+    for t in triggers:
+        for i in range (0, len(stories)):
+            #print ('Searching for: '+str(t.get_phrase()))
+            if t.evaluate(stories[i]):
+                returnstories.append(stories[i])
+    return returnstories
+
+stories = process("http://news.google.com/news?output=rss")
+
+t1 = TitleTrigger('Trump')
+t2 = TitleTrigger('Biden')
+t3 = DescriptionTrigger('riot')
+
+triggers = [t1, t2, t3]

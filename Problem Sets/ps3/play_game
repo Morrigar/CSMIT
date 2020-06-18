@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat May 23 10:56:55 2020
+
+@author: ksripinyo
+"""
+from ps3 import *
+
+def play_game(word_list):
+    """
+    Allow the user to play a series of hands
+
+    * Asks the user to input a total number of hands
+
+    * Accumulates the score for each hand into a total score for the 
+      entire series
+ 
+    * For each hand, before playing, ask the user if they want to substitute
+      one letter for another. If the user inputs 'yes', prompt them for their
+      desired letter. This can only be done once during the game. Once the
+      substitue option is used, the user should not be asked if they want to
+      substitute letters in the future.
+
+    * For each hand, ask the user if they would like to replay the hand.
+      If the user inputs 'yes', they will replay the hand and keep 
+      the better of the two scores for that hand.  This can only be done once 
+      during the game. Once the replay option is used, the user should not
+      be asked if they want to replay future hands. Replaying the hand does
+      not count as one of the total number of hands the user initially
+      wanted to play.
+
+            * Note: if you replay a hand, you do not get the option to substitute
+                    a letter - you must play whatever hand you just had.
+      
+    * Returns the total score for the series of hands
+
+    word_list: list of lowercase strings
+    """
+    handsub = False
+    replay = False
+    seriesScore = 0
+    hand_size = 7
+    print('Welcome to the Word Game!') # TO DO... Remove this line when you implement this function
+    print('Special rules:  Once per game you can replay a hand for a better score and once')
+    print('per game you can exchange all copies of one letter from your hand for new letters.')
+    totalhands = 0
+    while True:
+        try:
+            totalhands = int(input('Enter the number of hands you would like to play: '))
+        except ValueError:
+            print ('Enter a whole number for the total hands to play.')
+        else:
+            break
+    totalhands = abs(totalhands)
+    while totalhands > 0:
+        originalhand = deal_hand(hand_size)
+        hand = originalhand.copy()
+        print ('Your current hand is: ', end='')
+        display_hand(hand)
+        handscore = 0
+        if handsub==False:
+            subchoice = ''
+            while subchoice.lower() != 'yes' and subchoice.lower() != 'no': 
+                subchoice = input ('Would you like to substitute a letter, yes or no? ')
+            if subchoice.lower() == 'yes':
+                lettersub = input ('What letter would you like to substitute \n\
+                                   (this will substitutes all copies of the letter): ')
+                hand = substitute_hand(hand, lettersub)
+                handsub = True
+            else:
+                print ('Ok, you can sub a letter later if you want.')
+        handscore = play_hand(hand, word_list)
+
+        if replay==False:
+            subchoice = ''
+            while subchoice.lower() != 'yes' and subchoice.lower() != 'no': 
+                subchoice = input ('Would you like to replay that hand and see if you can beat it? ')
+                if subchoice.lower() == 'yes':    
+                    replay = True
+                    replayscore = play_hand(hand, word_list)
+                    if replayscore > handscore:
+                        print ('You did better!  Your score for that hand will be: '+str(replayscore))
+                        handscore = replayscore
+                else:
+                    print ('Ok, you can replay later if you want.')
+        seriesScore += handscore
+        print ('Your total score after that hand is: '+str(seriesScore))
+        totalhands -= 1
+    print ('Great job!  Your final score was : '+str(seriesScore))
+
+        
+        
+            
+        
+            
+            
+            
+        
+    
+    

@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat May 23 10:56:55 2020
+
+@author: ksripinyo
+"""
+from ps3 import *
+
+def play_hand(hand, wordlist):
+
+    """
+    Allows the user to play the given hand, as follows:
+
+    * The hand is displayed.
+    
+    * The user may input a word.
+
+    * When any word is entered (valid or invalid), it uses up letters
+      from the hand.
+
+    * An invalid word is rejected, and a message is displayed asking
+      the user to choose another word.
+
+    * After every valid word: the score for that word is displayed,
+      the remaining letters in the hand are displayed, and the user
+      is asked to input another word.
+
+    * The sum of the word scores is displayed when the hand finishes.
+
+    * The hand finishes when there are no more unused letters.
+      The user can also finish playing the hand by inputing two 
+      exclamation points (the string '!!') instead of a word.
+
+      hand: dictionary (string -> int)
+      word_list: list of lowercase strings
+      returns: the total score for the hand
+      
+    """
+    
+    totalscore = 0
+    handlen = calculate_handlen(hand)
+    
+    # As long as there are still letters left in the hand:
+    while handlen>0:    
+        print ('Current hand: ', end ='')
+        display_hand(hand)
+        word = input ('Enter Word or \"!!\" to indicate that you are finished: ')    
+        #print (is_valid_word(word, hand, wordlist))
+        if word == '!!':
+            break
+        else:
+            if is_valid_word(word, hand, wordlist):
+                totalscore += get_word_score(word, handlen)    
+                print ('\"'+word+'\" earned ' + str(get_word_score(word, handlen))+\
+                       ' points. Total: ' + str(totalscore))
+                hand = update_hand(hand, word)
+                handlen = calculate_handlen(hand)
+            else: 
+                print ('\"'+word + '\" is not a valid word.')
+                hand = update_hand(hand, word)                    
+                handlen = calculate_handlen(hand)            
+    print ('Game over!  Your total score was: '+str(totalscore))
+    return totalscore

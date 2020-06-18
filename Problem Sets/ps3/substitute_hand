@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat May 23 10:56:55 2020
+
+@author: ksripinyo
+"""
+from ps3 import *
+
+def substitute_hand(hand, letter):
+    """ 
+    Allow the user to replace all copies of one letter in the hand (chosen by user)
+    with a new letter chosen from the VOWELS and CONSONANTS at random. The new letter
+    should be different from user's choice, and should not be any of the letters
+    already in the hand.
+
+    If user provide a letter not in the hand, the hand should be the same.
+
+    Has no side effects: does not mutate hand.
+
+    For example:
+        substitute_hand({'h':1, 'e':1, 'l':2, 'o':1}, 'l')
+    might return:
+        {'h':1, 'e':1, 'o':1, 'x':2} -> if the new letter is 'x'
+    The new letter should not be 'h', 'e', 'l', or 'o' since those letters were
+    already in the hand.
+    
+    hand: dictionary (string -> int)
+    letter: string
+    returns: dictionary (string -> int)
+    """
+    copies = hand.get(letter,0)
+    newHand = hand.copy()
+    allletters = VOWELS+CONSONANTS    
+    if not copies:
+        print ('You don\'t have a '+letter+' in your hand.')
+        return hand
+    else:
+        for c in newHand:
+            if c =='*':
+                pass
+            elif allletters.find(c)==0:                
+                #print ('Removing '+c+'.')
+                allletters = allletters[1:]
+            elif allletters.find(c)==len(allletters):
+                #print ('Removing '+c+'.')
+                allletters = allletters[0:len(allletters)]
+            else:
+                #print ('Removing '+c+'.')
+                allletters = allletters[0:allletters.find(c)] + allletters[allletters.find(c)+1:]
+    #print ('Choice for newletter: '+allletters)
+    for i in range (copies):
+        newletter = random.choice(allletters)
+        print ('Dealing new letter '+newletter)
+        newHand[newletter] = newHand.get(newletter, 0)+1
+        
+    return newHand
